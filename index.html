@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101a38">
+<title>Dekulus — History Analytics</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app-shell">
+<header class="topbar">
+  <a class="brand" href="#" aria-label="Dekulus home">
+    <span class="brand-symbol"><b>D</b><i></i></span>
+    <span class="brand-name">Dekulus</span>
+    <span class="brand-divider"></span><span class="brand-caption">HISTORY ANALYTICS</span>
+  </a>
+  <div class="top-actions">
+    <button class="icon-btn" id="themeToggle" aria-label="Ubah tema" title="Ubah tema"><span id="themeIcon">☾</span></button>
+    <button class="btn btn-soft" id="backupBtn">Cadangkan</button>
+    <label class="btn btn-primary file-btn">＋ Impor data<input id="importFile" type="file" accept=".csv,.json,text/csv,application/json" hidden></label>
+  </div>
+</header>
+
+<main class="container">
+  <section class="welcome">
+    <div>
+      <div class="eyebrow"><span class="eyebrow-dot"></span> WORKSPACE / HISTORY</div>
+      <h1>Analisis <span>lebih terarah.</span></h1>
+      <p>Kelola database, pantau distribusi pola, dan bandingkan perubahan dari rentang periode pilihanmu.</p>
+    </div>
+    <div class="welcome-side"><span class="live-dot"></span><span id="storageStatus">Tersimpan otomatis</span></div>
+  </section>
+
+  <section class="workspace panel">
+    <div class="workspace-main">
+      <div class="field grow"><label for="groupSelect">DATABASE AKTIF</label><select id="groupSelect"></select></div>
+      <div class="field grow"><label for="newGroupName">BUAT DATABASE BARU</label><input id="newGroupName" placeholder="Nama grup / sumber data"></div>
+      <button class="btn btn-primary" id="addGroupBtn">＋ Buat grup</button>
+      <button class="btn btn-outline" id="renameGroupBtn">Ubah nama</button>
+      <button class="btn btn-outline btn-delete" id="deleteGroupBtn">Hapus</button>
+    </div>
+    <div class="workspace-foot"><span><span class="tiny-dot"></span> Data tersimpan di perangkat ini</span><span id="groupInfo">Pilih database</span></div>
+  </section>
+
+  <section class="metrics">
+    <article class="metric metric-main"><div class="metric-head"><span>Total periode</span><span class="metric-icon">▤</span></div><strong id="totalPeriods">0</strong><small id="periodRange">Belum ada data</small></article>
+    <article class="metric"><div class="metric-head"><span>Pola dominan</span><span class="metric-icon blue">↗</span></div><strong id="topPattern">—</strong><small id="topPatternSub">Menunggu data</small></article>
+    <article class="metric"><div class="metric-head"><span>Pola terendah</span><span class="metric-icon orange">↘</span></div><strong id="lowPattern">—</strong><small id="lowPatternSub">Menunggu data</small></article>
+    <article class="metric"><div class="metric-head"><span>Kombinasi pola</span><span class="metric-icon green">◫</span></div><strong>8</strong><small>Seluruh kombinasi S/O</small></article>
+  </section>
+
+  <section class="panel distribution-panel">
+    <div class="section-title">
+      <div><div class="eyebrow">DISTRIBUSI POLA</div><h2>Frekuensi setiap pola</h2><p class="section-desc">Pilih rentang untuk melihat perbandingan data terbaru.</p></div>
+      <div class="range-switch" role="group" aria-label="Rentang periode">
+        <button data-range="7">7</button><button data-range="14">14</button><button data-range="30" class="active">30</button><button data-range="all">Semua</button>
+      </div>
+    </div>
+    <div class="range-caption" id="rangeCaption">Menampilkan 30 periode terakhir</div>
+    <div id="frequencyChart" class="bars empty-state">Tambahkan atau impor data untuk menampilkan distribusi.</div>
+  </section>
+
+  <section class="range-cards" id="rangeCards">
+    <article class="range-card"><div class="range-card-top"><span>7 PERIODE</span><span class="range-mini">01</span></div><strong id="range7total">0</strong><small id="range7top">Belum ada data</small><div class="mini-track"><i id="range7bar"></i></div></article>
+    <article class="range-card"><div class="range-card-top"><span>14 PERIODE</span><span class="range-mini">02</span></div><strong id="range14total">0</strong><small id="range14top">Belum ada data</small><div class="mini-track"><i id="range14bar"></i></div></article>
+    <article class="range-card"><div class="range-card-top"><span>30 PERIODE</span><span class="range-mini">03</span></div><strong id="range30total">0</strong><small id="range30top">Belum ada data</small><div class="mini-track"><i id="range30bar"></i></div></article>
+  </section>
+
+  <section class="panel">
+    <div class="section-title wrap-mobile"><div><div class="eyebrow">RINGKASAN</div><h2>Frekuensi & persentase</h2><p class="section-desc" id="summaryCaption">Berdasarkan rentang yang dipilih.</p></div><button class="btn btn-outline" id="exportStatsBtn">↓ Ekspor ringkasan</button></div>
+    <div class="table-wrap"><table><thead><tr><th>POLA</th><th>JUMLAH</th><th>PERSENTASE</th><th>SELISIH DARI RATA-RATA</th></tr></thead><tbody id="statsBody"><tr><td colspan="4" class="empty-cell">Belum ada data.</td></tr></tbody></table></div>
+  </section>
+
+  <section class="panel explorer">
+    <div class="section-title wrap-mobile"><div><div class="eyebrow">DATA EXPLORER</div><h2>Database periode</h2><p class="section-desc">Tambah hasil secara manual atau telusuri data yang sudah tersimpan.</p></div>
+      <div class="actions"><button class="btn btn-primary" id="toggleManual">＋ Tambah periode</button><button class="btn btn-outline" id="exportDataBtn">↓ Ekspor CSV</button></div>
+    </div>
+    <div class="manual-entry" id="manualEntry" hidden>
+      <div class="manual-title"><div><b>Tambah data manual</b><small>Masukkan nomor periode dan angka keluar.</small></div><button class="icon-btn close-btn" id="closeManual" aria-label="Tutup">×</button></div>
+      <div class="manual-fields">
+        <div class="field"><label for="manualPeriod">PERIODE</label><input id="manualPeriod" inputmode="numeric" placeholder="Contoh: 1567"></div>
+        <div class="field"><label for="manualResult">ANGKA KELUAR</label><input id="manualResult" inputmode="numeric" maxlength="12" placeholder="Contoh: 1234"></div>
+        <button class="btn btn-primary" id="saveManual">Simpan periode</button>
+      </div>
+      <p class="manual-feedback" id="manualFeedback" aria-live="polite"></p>
+    </div>
+    <div class="filters">
+      <div class="field search-field"><label for="searchInput">PENCARIAN</label><input id="searchInput" placeholder="Cari periode, angka, atau pola…"></div>
+      <div class="field"><label for="patternFilter">POLA</label><select id="patternFilter"><option value="">Semua pola</option></select></div>
+      <div class="field"><label for="minPeriod">PERIODE MIN.</label><input id="minPeriod" inputmode="numeric" placeholder="Dari"></div>
+      <div class="field"><label for="maxPeriod">PERIODE MAKS.</label><input id="maxPeriod" inputmode="numeric" placeholder="Sampai"></div>
+      <div class="field"><label for="sortOrder">URUTAN</label><select id="sortOrder"><option value="desc">Terbaru</option><option value="asc">Terlama</option><option value="pattern">Pola</option></select></div>
+    </div>
+    <div class="table-meta"><span id="rowCount">0 baris</span><button class="text-btn" id="clearFiltersBtn">Reset filter ↺</button></div>
+    <div class="table-wrap data-table"><table><thead><tr><th>PERIODE</th><th>ANGKA KELUAR</th><th>3 DIGIT TERAKHIR</th><th>POLA</th><th>AKSI</th></tr></thead><tbody id="dataBody"><tr><td colspan="5" class="empty-cell">Belum ada data.</td></tr></tbody></table></div>
+    <div class="pagination"><span id="pageInfo">Halaman 0 dari 0</span><div><button class="btn btn-outline btn-sm" id="prevPage">← Sebelumnya</button><button class="btn btn-outline btn-sm" id="nextPage">Berikutnya →</button></div></div>
+  </section>
+
+  <section class="panel stability-panel">
+    <div class="section-title"><div><div class="eyebrow">PERBANDINGAN RENTANG</div><h2>Stabilitas pola per blok</h2><p class="section-desc">Bandingkan persentase pola pada blok periode berurutan.</p></div></div>
+    <div class="filters stability-controls">
+      <div class="field"><label for="chunkSize">UKURAN BLOK</label><select id="chunkSize"><option value="7">7 periode</option><option value="14">14 periode</option><option value="30" selected>30 periode</option><option value="50">50 periode</option><option value="100">100 periode</option></select></div>
+      <div class="field"><label for="stabilityPattern">POLA DIAMATI</label><select id="stabilityPattern"></select></div>
+    </div>
+    <div class="table-wrap"><table><thead><tr><th>BLOK</th><th>RENTANG PERIODE</th><th>JUMLAH DATA</th><th>JUMLAH POLA</th><th>PERSENTASE</th><th>SELISIH TOTAL</th></tr></thead><tbody id="stabilityBody"><tr><td colspan="6" class="empty-cell">Belum ada data.</td></tr></tbody></table></div>
+  </section>
+  <footer><span class="footer-brand">Dekulus</span> <span>·</span> History Analytics <span class="footer-note">Analisis historis bersifat deskriptif, bukan prediksi hasil.</span></footer>
+</main>
+</div>
+<script>
+const PATTERNS=['SSS','SSO','SOS','SOO','OSS','OSO','OOS','OOO'];
+const $=id=>document.getElementById(id),fmt=n=>Number(n||0).toLocaleString('id-ID');
+let groups=[],activeId='',page=1,pageSize=20,filteredRows=[],selectedRange=30;
+const uid=()=>`g_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`;
+function classify(raw){const s=String(raw??'').replace(/\D/g,'');if(!s)return null;const last=s.slice(-3).padStart(3,'0');return{last3:last,pattern:[...last].map(c=>Number(c)%2===0?'S':'O').join('')};}
+function normalizeRow(period,result){const c=classify(result);if(!c||period===undefined||String(period).trim()==='')return null;return{period:String(period).trim(),result:String(result).trim(),last3:c.last3,pattern:c.pattern};}
+function active(){return groups.find(g=>g.id===activeId)||groups[0]||null;}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function save(){try{localStorage.setItem('dekulus-history-v1',JSON.stringify({groups,activeId}));$('storageStatus').textContent='Tersimpan otomatis';}catch(e){$('storageStatus').textContent='Penyimpanan penuh';}}
+function load(){try{const x=JSON.parse(localStorage.getItem('dekulus-history-v1')||'null');if(x&&Array.isArray(x.groups)){groups=x.groups;activeId=x.activeId||groups[0]?.id||'';}}catch(e){}if(!groups.length){groups=[{id:uid(),name:'Database utama',rows:[]}];activeId=groups[0].id;}}
+function sortedRows(){return [...(active()?.rows||[])].sort((a,b)=>Number(a.period)-Number(b.period));}
+function getRangeRows(n=selectedRange){const rows=sortedRows();return n==='all'?rows:rows.slice(-Number(n));}
+function stats(rows){const counts=Object.fromEntries(PATTERNS.map(p=>[p,0]));rows.forEach(r=>{if(counts[r.pattern]!==undefined)counts[r.pattern]++;});return{counts,total:rows.length,avg:rows.length/8};}
+function renderGroups(){const old=activeId;$('groupSelect').innerHTML=groups.map(g=>`<option value="${esc(g.id)}">${esc(g.name)} · ${fmt(g.rows.length)}</option>`).join('');if(groups.some(g=>g.id===old))$('groupSelect').value=old;activeId=$('groupSelect').value;}
+function renderStats(){const rows=getRangeRows(),s=stats(rows),rank=PATTERNS.map(p=>({p,n:s.counts[p],pct:s.total?s.counts[p]/s.total*100:0})).sort((a,b)=>b.n-a.n||a.p.localeCompare(b.p));const all=active()?.rows||[];$('totalPeriods').textContent=fmt(all.length);const nums=all.map(r=>Number(r.period)).filter(Number.isFinite);$('periodRange').textContent=nums.length?`Periode ${fmt(Math.min(...nums))}–${fmt(Math.max(...nums))}`:'Belum ada data';$('topPattern').textContent=rows.length?rank[0].p:'—';$('topPatternSub').textContent=rows.length?`${fmt(rank[0].n)} kali · ${rank[0].pct.toFixed(1)}% pada rentang`:'Menunggu data';$('lowPattern').textContent=rows.length?rank[7].p:'—';$('lowPatternSub').textContent=rows.length?`${fmt(rank[7].n)} kali · ${rank[7].pct.toFixed(1)}% pada rentang`:'Menunggu data';$('summaryCaption').textContent=selectedRange==='all'?'Berdasarkan seluruh periode dalam database.':`Berdasarkan ${rows.length} dari maksimal ${selectedRange} periode terakhir.`;$('rangeCaption').textContent=selectedRange==='all'?'Menampilkan seluruh periode':`Menampilkan ${rows.length} periode terakhir`;
+$('statsBody').innerHTML=rows.length?rank.map(x=>`<tr><td><span class="pattern-pill">${x.p}</span></td><td>${fmt(x.n)}</td><td>${x.pct.toFixed(2)}%</td><td class="${x.n-s.avg>=0?'positive':'negative'}">${x.n-s.avg>=0?'+':''}${(x.n-s.avg).toFixed(2)}</td></tr>`).join(''):'<tr><td colspan="4" class="empty-cell">Belum ada data pada rentang ini.</td></tr>';
+$('frequencyChart').innerHTML=rows.length?rank.map(x=>`<div class="bar-row"><div class="bar-label"><span class="pattern-pill">${x.p}</span><b>${fmt(x.n)} <small>${x.pct.toFixed(1)}%</small></b></div><div class="bar-track"><span style="width:${x.pct?Math.max(1,x.pct/Math.max(...rank.map(a=>a.pct))*100):0}%"></span></div></div>`).join(''):'Tambahkan atau impor data untuk menampilkan distribusi.';$('frequencyChart').classList.toggle('empty-state',!rows.length);
+}
+function renderRangeCards(){[7,14,30].forEach(n=>{const rows=getRangeRows(n),s=stats(rows),rank=PATTERNS.map(p=>({p,n:s.counts[p]})).sort((a,b)=>b.n-a.n);$(`range${n}total`).textContent=fmt(rows.length);$(`range${n}top`).textContent=rows.length?`Dominan ${rank[0].p} · ${rank[0].n} kali`:'Belum ada data';$(`range${n}bar`).style.width=rows.length?`${rank[0].n/rows.length*100}%`:'0%';});}
+function renderData(){const rows=active()?.rows||[],q=$('searchInput').value.toLowerCase().trim(),pat=$('patternFilter').value,min=$('minPeriod').value.trim(),max=$('maxPeriod').value.trim(),sort=$('sortOrder').value;filteredRows=rows.filter(r=>(!q||[r.period,r.result,r.last3,r.pattern].some(v=>String(v).toLowerCase().includes(q)))&&(!pat||r.pattern===pat)&&(min===''||Number(r.period)>=Number(min))&&(max===''||Number(r.period)<=Number(max)));if(sort==='asc')filteredRows.sort((a,b)=>Number(a.period)-Number(b.period));else if(sort==='pattern')filteredRows.sort((a,b)=>a.pattern.localeCompare(b.pattern)||Number(b.period)-Number(a.period));else filteredRows.sort((a,b)=>Number(b.period)-Number(a.period));const pages=Math.ceil(filteredRows.length/pageSize);page=Math.min(Math.max(1,page),Math.max(1,pages));const shown=filteredRows.slice((page-1)*pageSize,page*pageSize);$('dataBody').innerHTML=shown.length?shown.map(r=>`<tr><td>${esc(r.period)}</td><td class="num">${esc(r.result)}</td><td class="num">${esc(r.last3)}</td><td><span class="pattern-pill">${r.pattern}</span></td><td><button class="row-delete" data-period="${esc(r.period)}" title="Hapus periode">×</button></td></tr>`).join(''):'<tr><td colspan="5" class="empty-cell">Tidak ada data yang cocok.</td></tr>';$('rowCount').textContent=`${fmt(filteredRows.length)} hasil · ${fmt(rows.length)} total`; $('pageInfo').textContent=`Halaman ${pages?page:0} dari ${pages}`;$('prevPage').disabled=page<=1;$('nextPage').disabled=page>=pages;}
+function renderStability(){const rows=sortedRows(),size=Number($('chunkSize').value),pat=$('stabilityPattern').value,total=stats(rows),base=total.total?total.counts[pat]/total.total*100:0,chunks=[];for(let i=0;i<rows.length;i+=size){const part=rows.slice(i,i+size),n=part.filter(r=>r.pattern===pat).length,pct=part.length?n/part.length*100:0;chunks.push({part,n,pct});}$('stabilityBody').innerHTML=chunks.length?chunks.map((c,j)=>`<tr><td>Blok ${j+1}</td><td>${esc(c.part[0].period)}–${esc(c.part[c.part.length-1].period)}</td><td>${fmt(c.part.length)}</td><td>${fmt(c.n)}</td><td>${c.pct.toFixed(2)}%</td><td class="${c.pct-base>=0?'positive':'negative'}">${c.pct-base>=0?'+':''}${(c.pct-base).toFixed(2)} poin</td></tr>`).join(''):'<tr><td colspan="6" class="empty-cell">Belum ada data.</td></tr>';}
+function render(){renderGroups();$('groupInfo').textContent=active()?.name||'';renderStats();renderRangeCards();renderData();renderStability();save();}
+function parseCSV(text){text=String(text??'').replace(/^\uFEFF/,'');const lines=text.split(/\r?\n/).filter(l=>l.trim());if(!lines.length)return[];const detect=line=>[',',';','\t','|'].map(d=>({d,n:[...line].filter(c=>c===d).length})).sort((a,b)=>b.n-a.n)[0].d;const delimiter=detect(lines[0]);const parse=line=>{let out=[],v='',quote=false;for(let i=0;i<line.length;i++){const c=line[i];if(c==='"'&&line[i+1]==='"'&&quote){v+='"';i++;}else if(c==='"')quote=!quote;else if(c===delimiter&&!quote){out.push(v.trim());v='';}else v+=c;}out.push(v.trim());return out;};const clean=x=>String(x??'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');const first=parse(lines[0]),head=first.map(clean),pi=head.findIndex(x=>['periode','period','no','nomor','draw','drawno','id'].includes(x)),ri=head.findIndex(x=>['angkakeluar','hasil','result','angka','keluaran','nomorkeluar','winningnumber','number'].includes(x)),header=pi>=0||ri>=0;const p=header?(pi<0?0:pi):0,r=header?(ri<0?1:ri):1;return lines.slice(header?1:0).map(line=>{const a=parse(line);return normalizeRow(a[p]??a[0],a[r]??a[1]);}).filter(Boolean);}
+function download(name,content,type='text/plain'){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function csv(rows){const q=v=>`"${String(v??'').replace(/"/g,'""')}"`;return[['Periode','Angka Keluar','Tiga Digit Terakhir','Pola'],...rows.map(r=>[r.period,r.result,r.last3,r.pattern])].map(r=>r.map(q).join(',')).join('\r\n');}
+function setTheme(theme){document.documentElement.dataset.theme=theme;localStorage.setItem('dekulus-theme',theme);$('themeIcon').textContent=theme==='dark'?'☀':'☾';}
+$('themeToggle').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+setTheme(localStorage.getItem('dekulus-theme')||'light');
+document.querySelectorAll('[data-range]').forEach(b=>b.onclick=()=>{selectedRange=b.dataset.range==='all'?'all':Number(b.dataset.range);document.querySelectorAll('[data-range]').forEach(x=>x.classList.toggle('active',x===b));renderStats();renderRangeCards();});
+$('addGroupBtn').onclick=()=>{const name=$('newGroupName').value.trim();if(!name)return alert('Masukkan nama grup.');if(groups.some(g=>g.name.toLowerCase()===name.toLowerCase()))return alert('Nama grup sudah digunakan.');const g={id:uid(),name,rows:[]};groups.push(g);activeId=g.id;$('newGroupName').value='';page=1;render();};
+$('groupSelect').onchange=()=>{activeId=$('groupSelect').value;page=1;render();};
+$('renameGroupBtn').onclick=()=>{const g=active(),name=prompt('Nama baru untuk grup:',g?.name||'');if(g&&name?.trim()){g.name=name.trim();render();}};
+$('deleteGroupBtn').onclick=()=>{if(groups.length<=1)return alert('Minimal harus ada satu grup.');const g=active();if(g&&confirm(`Hapus grup "${g.name}" beserta ${g.rows.length} periodenya?`)){groups=groups.filter(x=>x.id!==g.id);activeId=groups[0].id;render();}};
+$('toggleManual').onclick=()=>{$('manualEntry').hidden=!$('manualEntry').hidden;if(!$('manualEntry').hidden)$('manualPeriod').focus();};
+$('closeManual').onclick=()=>$('manualEntry').hidden=true;
+$('saveManual').onclick=()=>{const p=$('manualPeriod').value.trim(),r=$('manualResult').value.trim(),g=active();if(!p||!r)return $('manualFeedback').textContent='Periode dan angka keluar wajib diisi.';if(!/^\d+$/.test(p)||!/^\d+$/.test(r))return $('manualFeedback').textContent='Gunakan angka saja untuk kedua kolom.';const row=normalizeRow(p,r);const i=g.rows.findIndex(x=>x.period===row.period);if(i>=0){if(!confirm(`Periode ${p} sudah ada. Perbarui angkanya?`))return;g.rows[i]=row;}else g.rows.push(row);g.rows.sort((a,b)=>Number(a.period)-Number(b.period));$('manualPeriod').value='';$('manualResult').value='';$('manualFeedback').textContent=`Periode ${p} berhasil ${i>=0?'diperbarui':'ditambahkan'} dengan pola ${row.pattern}.`;page=1;render();};
+$('dataBody').onclick=e=>{const b=e.target.closest('[data-period]');if(!b)return;const p=b.dataset.period;if(confirm(`Hapus periode ${p}?`)){active().rows=active().rows.filter(r=>r.period!==p);render();}};
+$('importFile').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const txt=await new Promise((resolve,reject)=>{if(file.text)file.text().then(resolve,reject);else{const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=()=>reject(Error('File tidak dapat dibaca.'));r.readAsText(file);}});if(file.name.toLowerCase().endsWith('.json')){const obj=JSON.parse(txt);if(!Array.isArray(obj.groups))throw Error('Format cadangan JSON tidak sesuai.');if(confirm('Ganti semua database dengan cadangan JSON ini?')){groups=obj.groups.map(g=>({id:g.id||uid(),name:g.name||'Grup impor',rows:(g.rows||[]).map(r=>normalizeRow(r.period,r.result)).filter(Boolean)}));if(!groups.length)groups=[{id:uid(),name:'Database utama',rows:[]}];activeId=groups.some(g=>g.id===obj.activeId)?obj.activeId:groups[0].id;render();alert('Cadangan berhasil dipulihkan.');}}else{const rows=parseCSV(txt);if(!rows.length)throw Error('Tidak ditemukan baris data valid.');const g=active(),map=new Map(g.rows.map(r=>[r.period,r]));let added=0,updated=0;rows.forEach(r=>{map.has(r.period)?updated++:added++;map.set(r.period,r);});g.rows=[...map.values()].sort((a,b)=>Number(a.period)-Number(b.period));render();alert(`Impor selesai.\\nBaris baru: ${fmt(added)}\\nDiperbarui: ${fmt(updated)}\\nTotal: ${fmt(g.rows.length)}`);}}catch(err){alert('Gagal mengimpor: '+err.message);}e.target.value='';});
+$('backupBtn').onclick=()=>download('dekulus-backup.json',JSON.stringify({version:2,exportedAt:new Date().toISOString(),activeId,groups},null,2),'application/json');
+$('exportDataBtn').onclick=()=>download('dekulus-database.csv',csv(filteredRows),'text/csv;charset=utf-8');
+$('exportStatsBtn').onclick=()=>{const rows=getRangeRows(),s=stats(rows);download('dekulus-ringkasan.csv',[['Pola','Jumlah','Persentase','Selisih rata-rata'],...PATTERNS.map(p=>[p,s.counts[p],(s.total?s.counts[p]/s.total*100:0).toFixed(2)+'%',(s.counts[p]-s.avg).toFixed(2)])].map(r=>r.join(',')).join('\r\n'),'text/csv;charset=utf-8');};
+$('searchInput').oninput=()=>{page=1;renderData();};['patternFilter','minPeriod','maxPeriod','sortOrder'].forEach(id=>$(id).addEventListener(id==='patternFilter'||id==='sortOrder'?'change':'input',()=>{page=1;renderData();}));
+$('clearFiltersBtn').onclick=()=>{$('searchInput').value='';$('patternFilter').value='';$('minPeriod').value='';$('maxPeriod').value='';$('sortOrder').value='desc';page=1;renderData();};
+$('prevPage').onclick=()=>{page--;renderData();};$('nextPage').onclick=()=>{page++;renderData();};$('chunkSize').onchange=renderStability;$('stabilityPattern').onchange=renderStability;
+$('patternFilter').innerHTML='<option value="">Semua pola</option>'+PATTERNS.map(p=>`<option>${p}</option>`).join('');$('stabilityPattern').innerHTML=PATTERNS.map(p=>`<option>${p}</option>`).join('');
+load();render();
+</script>
+</body>
+</html>
